@@ -3,15 +3,15 @@ container_registry := quay.io/nordstrom
 cfssl_version := 1.2.0
 container_release := $(cfssl_version)
 
-.PHONY: build/container tag/container push/container
+.PHONY: build/image tag/image push/image
 
-build/container: build/docker/Dockerfile build/docker/cfssl build/docker/mkbundle build/docker/multirootca
+build/image: build/docker/Dockerfile build/docker/cfssl build/docker/mkbundle build/docker/multirootca
 	docker build -t $(container_name) build/docker
 
-tag/container: build/container
+tag/image: build/image
 	docker tag $(container_name) $(container_registry)/$(container_name):$(container_release)
 
-push/container: tag/container
+push/image: tag/image
 	docker push $(container_registry)/$(container_name):$(container_release)
 
 build/docker/Dockerfile: Dockerfile Makefile | build/docker
