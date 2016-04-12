@@ -17,22 +17,12 @@ push/image: tag/image
 build/docker/Dockerfile: Dockerfile Makefile | build/docker
 	cp $< $@
 
-build/docker/cfssl: build/cfssl-$(cfssl_version)/dist/cfssl_linux-amd64
+container_bins := "build/docker/cfssl build/docker/mkbundle build/docker/multirootca"
+$(container_bins): build/docker/%: build/cfssl-$(cfssl_version)/dist/%_linux-amd64
 	cp $< $@
 
-build/docker/mkbundle: build/cfssl-$(cfssl_version)/dist/mkbundle_linux-amd64
-	cp $< $@
-
-build/docker/multirootca: build/cfssl-$(cfssl_version)/dist/multirootca_linux-amd64
-	cp $< $@
-
-build/cfssl-$(cfssl_version)/dist/cfssl_linux-amd64: build/cfssl-$(cfssl_version) | build
-	cd $<; ./script/build
-
-build/cfssl-$(cfssl_version)/dist/mkbundle_linux-amd64: build/cfssl-$(cfssl_version) | build
-	cd $<; ./script/build
-
-build/cfssl-$(cfssl_version)/dist/multirootca_linux-amd64: build/cfssl-$(cfssl_version) | build
+linux_bins := "build/cfssl-$(cfssl_version)/dist/cfssl_linux-amd64 build/cfssl-$(cfssl_version)/dist/mkbundle_linux-amd64 build/cfssl-$(cfssl_version)/dist/multirootca_linux-amd64"
+$(linux_bins): build/cfssl-$(cfssl_version)/dist/%_linux-amd64: build/cfssl-$(cfssl_version) | build
 	cd $<; ./script/build
 
 build/cfssl-$(cfssl_version): build/cfssl-$(cfssl_version).tar.gz | build
