@@ -32,6 +32,7 @@ $(container_binaries): build/%: build/%_linux-amd64 | build
 
 $(download_binaries): build/%: | build
 	cd build; curl -sLO https://pkg.cfssl.org/R$(cfssl_version)/$*
+	chmod +x $@
 
 build:
 	mkdir -p $@
