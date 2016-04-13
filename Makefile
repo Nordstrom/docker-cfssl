@@ -3,14 +3,17 @@ container_registry := quay.io/nordstrom
 cfssl_version := 1.2
 container_release := $(cfssl_version)
 
-container_bins := build/cfssl build/cfssljson build/mkbundle build/multirootca build/cfssl-bundle build/cfssl-certinfo build/cfssl-newkey build/cfssl-scan
-download_bins := build/cfssl_linux-amd64 build/cfssljson_linux-amd64 build/mkbundle_linux-amd64 build/multirootca_linux-amd64 build/cfssl-bundle_linux-amd64 build/cfssl-certinfo_linux-amd64 build/cfssl-newkey_linux-amd64 build/cfssl-scan_linux-amd64
+binaries := cfssl cfssljson mkbundle multirootca cfssl-bundle cfssl-certinfo cfssl-newkey cfssl-scan
+container_binaries := $(foreach binary,$(binaries),build/$(binary))
+download_binaries := $(foreach binary,$(binaries),build/$(binary)_linux-amd64)
 
-.PHONY: build/image tag/image push/image
+.PHONY: build/image tag/image push/image verify/binaries
 
-build/image: build/Dockerfile build/SHA256SUMS $(container_bins)
-	cd build && shasum -c SHA256SUMS
+build/image: build/Dockerfile verify/binaries $(container_binaries)
 	docker build -t $(container_name) build
+
+verify/binaries: build/SHA256SUMS $(download_binaries)
+	cd build && shasum -c SHA256SUMS
 
 tag/image: build/image
 	docker tag $(container_name) $(container_registry)/$(container_name):$(container_release)
@@ -24,10 +27,10 @@ build/Dockerfile: Dockerfile Makefile | build
 build/SHA256SUMS: SHA256SUMS | build
 	cp $< $@
 
-$(container_bins): build/%: build/%_linux-amd64 | build
-	cp build/$*_linux-amd64 build/$*
+$(container_binaries): build/%: build/%_linux-amd64 | build
+	cp $< $@
 
-$(download_bins): build/%: | build
+$(download_binaries): build/%: | build
 	cd build; curl -sLO https://pkg.cfssl.org/R$(cfssl_version)/$*
 
 build:
