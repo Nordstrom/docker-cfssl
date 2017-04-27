@@ -1,5 +1,5 @@
 FROM quay.io/nordstrom/baseimage-ubuntu:16.04
-MAINTAINER Store Platform Team "invcldtm@nordstrom.com"
+MAINTAINER Enterprise Kubernetes Team "techk8s@nordstrom.com"
 
 COPY cfssl cfssljson mkbundle multirootca cfssl-bundle cfssl-certinfo cfssl-newkey cfssl-scan /usr/bin/
 
